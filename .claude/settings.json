@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "defaultMode": "default",
+    "allow": [
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git branch *)",
+      "Bash(git remote -v)",
+      "Bash(git rev-parse *)",
+      "Bash(git ls-files *)",
+      "Bash(git fetch *)",
+      "Bash(git blame *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(wc *)",
+      "Bash(grep *)",
+      "Bash(rg *)",
+      "Bash(find *)",
+      "Bash(sed -n *)",
+      "Bash(jq *)",
+      "Bash(file *)",
+      "Bash(du *)",
+      "Bash(df *)",
+      "Bash(npm test *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run typecheck *)",
+      "Bash(npm run build *)",
+      "Bash(npx vitest *)",
+      "Bash(npx eslint *)",
+      "Bash(npx tsc *)",
+      "Bash(npx next build *)",
+      "Bash(vitest *)",
+      "Bash(eslint *)",
+      "Bash(tsc *)",
+      "Bash(pytest *)",
+      "Bash(python -m pytest *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git checkout -b claude/*)",
+      "Bash(git switch -c claude/*)",
+      "Bash(git push -u origin claude/*)",
+      "Bash(git push origin claude/*)",
+      "Skill(ablative-review)",
+      "Skill(ablative-review:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:genteki.github.io)",
+      "WebFetch(domain:www.live2d.com)"
+    ],
+    "deny": [
+      "Bash(git push origin main)",
+      "Bash(git push -u origin main)",
+      "Bash(git push origin master)",
+      "Bash(git push -u origin master)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Read(**/id_rsa*)",
+      "Read(**/id_ed25519*)",
+      "Read(**/id_ecdsa*)",
+      "Read(**/id_dsa*)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Read(**/*.p12)",
+      "Read(**/.env*)",
+      "Edit(supabase/**)",
+      "Edit(types/database.ts)",
+      "Bash(rm -rf *)",
+      "Bash(rm -fr *)",
+      "Bash(rm -r *)",
+      "Bash(git reset --hard *)",
+      "Bash(git clean -f *)",
+      "Bash(git clean -fd *)",
+      "Bash(git checkout -- *)",
+      "Bash(git checkout .)",
+      "Bash(git restore .)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "c=$(jq -r '.tool_input.command // empty'); if printf '%s' \"$c\" | grep -Eq 'git[[:space:]]+push'; then if ! printf '%s' \"$c\" | grep -q 'claude/'; then printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Push blocked: this command does not name a claude/* branch. Pushes to main or master are not permitted from this session.\"}}'; fi; fi; exit 0",
+            "timeout": 10,
+            "statusMessage": "Checking push target"
+          }
+        ]
+      }
+    ]
+  }
+}
